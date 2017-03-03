@@ -15,6 +15,24 @@
 	"use strict";
 
 	/**
+	 * Convert Japanese characters from zenkaku to hankaku
+	 */
+	var toHankaku = (function (String, fromCharCode) {
+
+		function toHankaku(string) {
+			var hankaku = String(string).replace(/\u2019/g, '\u0027').replace(/\u201D/g, '\u0022').replace(/\u3000/g, '\u0020').replace(/\uFFE5/g, '\u00A5').replace(/[\uFF01\uFF03-\uFF06\uFF08\uFF09\uFF0C-\uFF19\uFF1C-\uFF1F\uFF21-\uFF3B\uFF3D\uFF3F\uFF41-\uFF5B\uFF5D\uFF5E]/g, alphaNum);
+			hankaku = hankaku.replace(/\u2212/g, '-').replace(/\u30fc/g, '-');
+			return hankaku;
+		}
+
+		function alphaNum(token) {
+			return fromCharCode(token.charCodeAt(0) - 65248);
+		}
+
+		return toHankaku;
+	})(String, String.fromCharCode);
+
+	/**
 	 * Method for selecting a range of characters in an input/textarea.
 	 *
 	 * @param int rangeStart			: Where we want the selection to start.
@@ -145,6 +163,9 @@
 			regex_dec_num	= new RegExp('[^'+u_dec+'0-9]','g'),
 			regex_dec		= new RegExp(u_dec,'g');
 
+		// Japanese inputting flag
+		var is_jp_input = false;
+
 		// If we've specified to take the number from the target element,
 		// we loop over the collection, and get the number.
 		if( number === true )
@@ -184,6 +205,13 @@
 							end		= getSelection.apply(this,['end']),
 							val		= '',
 							setPos	= false;
+
+						if (code === 229) {
+							is_jp_input = true;
+							return false;
+						} else {
+                            is_jp_input = false;
+                        }
 
 						// Webkit (Chrome & Safari) on windows screws up the keyIdentifier detection
 						// for numpad characters. I've disabled this for now, because while keyCode munging
@@ -458,6 +486,14 @@
 							end		= getSelection.apply(this,['end']),
 							setPos;
 
+						if(is_jp_input === true) {
+							if (code === 13) {
+								$this.val($this.val());
+								is_jp_input = false;
+							} else {
+								return false;
+							}
+						}
 
 						// Check for negative characters being entered at the start of the string.
 						// If there's any kind of selection, just ignore the input.
@@ -649,7 +685,7 @@
 
 
 			// Convert to a number.
-			num = +(el.value
+			num = +(toHankaku(el.value)
 				.replace( data.regex_dec_num, '' )
 				.replace( data.regex_dec, '.' ));
 
@@ -657,7 +693,7 @@
 			// Otherwise, simply return 0.
 			// Return as a string... thats what we're
 			// used to with .val()
-			return (el.value.indexOf('-') === 0 ? '-' : '')+( isFinite( num ) ? num : 0 );
+			return (toHankaku(el.value).indexOf('-') === 0 ? '-' : '')+( isFinite( num ) ? num : 0 );
 		}
 	};
 
@@ -737,7 +773,7 @@
 		var u_sep = ('\\u'+('0000'+(thousands_sep.charCodeAt(0).toString(16))).slice(-4));
 
 		// Fix the number, so that it's an actual number.
-		number = (number + '')
+		number = (toHankaku(number) + '')
 			.replace('\.', dec_point) // because the number if passed in as a float (having . as decimal point per definition) we need to replace this with the passed in decimal point character
 			.replace(new RegExp(u_sep,'g'),'')
 			.replace(new RegExp(u_dec,'g'),'.')

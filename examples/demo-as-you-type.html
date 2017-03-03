@@ -4,19 +4,15 @@
 		<title>jQuery Number Format Plugin</title>
 		
 		<script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
-		<script type="text/javascript" src="http://www.teamdf.com/jquery-plugins/resources/javascripts/prettify.js"></script>
-		<script type="text/javascript" src="http://www.teamdf.com/jquery-plugins/resources/javascripts/docs.js"></script>
-		<script type="text/javascript" src="../jquery.number.js"></script>
+		<script type="text/javascript" src="../jquery.number.min.js"></script>
 		
-		<link rel="stylesheet" href="http://www.teamdf.com/jquery-plugins/resources/stylesheets/prettify.css"/>
-		<link rel="stylesheet" href="http://www.teamdf.com/jquery-plugins/resources/stylesheets/docs.css"/>
-				
 		<script type="text/javascript">
 			
 			$(function(){
 				// Set up the number formatting.
 				
 				$('#number_container').slideDown('fast');
+				$('#number_container2').slideDown('fast');
 				
 				$('#price').on('change',function(){
 					console.log('Change event.');
@@ -38,10 +34,10 @@
 					
 					$('#the_number').text( val !== '' ? val : '(empty)' );
 				});
+
+				$('#format_number').text($.number( '１２３４５６' ));
 			});
 		</script>
-		
-		<link rel="stylesheet" href="http://www.teamdf.com/jquery-plugins/resources/stylesheets/prettify.css" type="text/css" />
 		
 		<style>
 			#number_container{
@@ -84,6 +80,11 @@
 			<div id="number_container">
 				<label for="the_number">The number is:</label>
 				<pre id="the_number"></pre>
+			</div>
+
+			<div id="number_container2">
+				<label for="format_number">$.number( '１２３４５６' )</label>
+				<pre id="format_number"></pre>
 			</div>
 		</div>
 	</body>
